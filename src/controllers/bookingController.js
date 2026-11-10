@@ -16,15 +16,19 @@ async function createBooking(req, res) {
   try {
     await client.query('BEGIN');
 
-    // Section: Facility Lookup & Sensor Maintenance Lock Verification
-    const facilityRes = await client.query('SELECT * FROM facilities WHERE facility_id = $1', [facilityId]);
+    // Section: Resolved Combined Pessimistic Row Locking & Sensor Maintenance Verification
+    // 1. [CONCURRENCY] Acquire exclusive row lock on facility to serialize simultaneous reservations
+    const facilityRes = await client.query('SELECT * FROM facilities WHERE facility_id = $1 FOR UPDATE', [facilityId]);
     if (facilityRes.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'FACILITY_NOT_FOUND' });
     }
     const facility = facilityRes.rows[0];
 
-    // [FEATURE: SENSOR-INTAKE] Verify room is not blocked by active telemetry alerts
+    // Concurrency serialization delay window (300ms) for race condition simulation
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // 2. [SENSOR-INTAKE] Verify room is not blocked by active critical telemetry alerts
     if (facility.status === 'MAINTENANCE_LOCK') {
       await client.query('ROLLBACK');
       return res.status(423).json({
