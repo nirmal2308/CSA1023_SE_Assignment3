@@ -11,6 +11,7 @@ FACILITY_ID="fac-lab-101"
 
 echo "======================================================================"
 echo " SMART CAMPUS PLATFORM: PESSIMISTIC LOCKING CONCURRENCY BENCHMARK"
+echo " Candidate: Nirmal S | Reg No: 192511249 | Course: CSA1023"
 echo " Target Facility: ${FACILITY_ID} (IoT Embedded Systems Lab 101)"
 echo " Reservation Window: ${START_TIME} to ${END_TIME}"
 echo "======================================================================"
@@ -63,6 +64,7 @@ else
   echo "[WARNING] Unexpected status codes returned: Request A=${STATUS_A}, Request B=${STATUS_B}"
 fi
 
+echo " [VERIFIED SUBMISSION] Nirmal S | 192511249 | CSA1023"
 echo "======================================================================"
 
 rm -rf "${TMP_DIR}"

@@ -11,6 +11,7 @@ RESTART_TRIGGERED=false
 
 echo "======================================================================"
 echo " SMART CAMPUS PLATFORM: HIGH AVAILABILITY & FAILOVER TEST"
+echo " Candidate: Nirmal S | Reg No: 192511249 | Course: CSA1023"
 echo " Reverse Proxy: Nginx (Port 80) -> Upstream Cluster [app_a, app_b]"
 echo " Demonstrating zero dropped requests during container restart"
 echo "======================================================================"
@@ -60,4 +61,5 @@ echo " Dropped / Failed Requests  : ${FAIL_COUNT}"
 echo " Packet Loss Rate           : 0.00%"
 echo " High-Availability Status   : 100% OPERATIONAL (Zero Downtime Confirmed)"
 echo " Reverse Proxy Mechanism    : Nginx proxy_next_upstream seamless failover"
+echo " Candidate Verification     : Nirmal S | 192511249 | CSA1023"
 echo "======================================================================"
