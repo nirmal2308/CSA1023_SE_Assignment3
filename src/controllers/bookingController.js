@@ -16,13 +16,22 @@ async function createBooking(req, res) {
   try {
     await client.query('BEGIN');
 
-    // Section: Facility Lookup & Verification
+    // Section: Facility Lookup & Sensor Maintenance Lock Verification
     const facilityRes = await client.query('SELECT * FROM facilities WHERE facility_id = $1', [facilityId]);
     if (facilityRes.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'FACILITY_NOT_FOUND' });
     }
     const facility = facilityRes.rows[0];
+
+    // [FEATURE: SENSOR-INTAKE] Verify room is not blocked by active telemetry alerts
+    if (facility.status === 'MAINTENANCE_LOCK') {
+      await client.query('ROLLBACK');
+      return res.status(423).json({
+        error: 'FACILITY_UNDER_MAINTENANCE',
+        message: 'Facility is locked due to active critical sensor telemetry maintenance.',
+      });
+    }
 
     // Check time overlaps
     const overlapRes = await client.query(
