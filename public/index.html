@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Facility Booking & Autonomous Maintenance Platform</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-microchip text-white text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+              SMART CAMPUS PLATFORM
+            </h1>
+            <span class="text-xs px-2 py-0.5 rounded-full font-mono font-semibold bg-indigo-950 text-indigo-400 border border-indigo-800">
+              v1.0.0-stable
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Autonomous Facility Booking & Telemetry Triage Engine</p>
+        </div>
+      </div>
+
+      <!-- System Status Badges -->
+      <div class="flex items-center space-x-3 text-xs">
+        <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-slate-300">Cluster Node:</span>
+          <span id="active-instance-label" class="font-mono font-bold text-emerald-400">app_instance_a</span>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60">
+          <i class="fa-solid fa-database text-cyan-400"></i>
+          <span class="text-slate-300">PostgreSQL:</span>
+          <span class="font-mono text-cyan-300">campus_ops (Pool 20)</span>
+        </div>
+
+        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-indigo-950/60 border border-indigo-800/80">
+          <i class="fa-solid fa-user-graduate text-indigo-400"></i>
+          <span class="font-medium text-slate-200">Nirmal S</span>
+          <span class="text-slate-400 font-mono">(192511249)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS BAR -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60">
+      <nav class="flex space-x-2 sm:space-x-8 py-2 overflow-x-auto" aria-label="Tabs">
+        <button onclick="switchTab('facilities')" id="tab-btn-facilities" class="tab-button active-tab flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-all">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Facilities & Calendar</span>
+          <span id="badge-fac-count" class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs bg-indigo-500/20 text-indigo-300">3</span>
+        </button>
+
+        <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-button flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all">
+          <i class="fa-solid fa-satellite-dish"></i>
+          <span>Sensor Telemetry Simulator</span>
+          <span class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs bg-amber-500/20 text-amber-300">Live</span>
+        </button>
+
+        <button onclick="switchTab('kanban')" id="tab-btn-kanban" class="tab-button flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Maintenance Kanban</span>
+          <span id="badge-tickets-count" class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs bg-rose-500/20 text-rose-300">1</span>
+        </button>
+
+        <button onclick="switchTab('approvals')" id="tab-btn-approvals" class="tab-button flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all">
+          <i class="fa-solid fa-stamp"></i>
+          <span>Department Approvals & Audit</span>
+          <span id="badge-pending-count" class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs bg-indigo-500/20 text-indigo-300">1</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ==================== TAB 1: FACILITIES & CALENDAR ==================== -->
+    <section id="tab-facilities" class="tab-content space-y-6">
+      <!-- Quick Stat Summary Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Facilities</p>
+            <p class="text-2xl font-bold text-white mt-1">3 Spaces</p>
+          </div>
+          <div class="h-10 w-10 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+            <i class="fa-solid fa-building text-lg"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Active Bookings</p>
+            <p class="text-2xl font-bold text-emerald-400 mt-1" id="stat-active-bookings">2 Slots</p>
+          </div>
+          <div class="h-10 w-10 rounded-lg bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-clock text-lg"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Restricted Labs</p>
+            <p class="text-2xl font-bold text-amber-400 mt-1">2 Labs</p>
+          </div>
+          <div class="h-10 w-10 rounded-lg bg-amber-600/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-lock text-lg"></i>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Maintenance Lock</p>
+            <p class="text-2xl font-bold text-rose-400 mt-1" id="stat-maintenance-count">0 Locked</p>
+          </div>
+          <div class="h-10 w-10 rounded-lg bg-rose-600/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+            <i class="fa-solid fa-wrench text-lg"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facility Catalogue Cards -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+              <span>Facility Catalogue</span>
+              <span class="text-xs font-normal text-slate-400">(Pessimistic Concurrency Protected)</span>
+            </h2>
+            <p class="text-xs text-slate-400">Real-time availability with PostgreSQL row-level locks on reservation checkout</p>
+          </div>
+          <button onclick="openBookingModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition-all">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>New Reservation</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="facility-cards-container">
+          <!-- Dynamically populated or rendered -->
+        </div>
+      </div>
+
+      <!-- Calendar Schedule Grid -->
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-calendar-check text-indigo-400"></i>
+              <span>Interactive Campus Schedule & Timeline</span>
+            </h3>
+            <p class="text-xs text-slate-400">Visual timetable across facilities displaying confirmed slots, pending approvals, and maintenance windows</p>
+          </div>
+          <div class="flex items-center space-x-3 text-xs">
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-slate-300">Confirmed</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="text-slate-300">Pending Approver</span></span>
+            <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span class="text-slate-300">Maintenance</span></span>
+          </div>
+        </div>
+
+        <!-- Timeline Grid -->
+        <div class="overflow-x-auto">
+          <div class="min-w-[700px] space-y-3" id="calendar-timeline">
+            <!-- Timeline Rows dynamically rendered -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: SENSOR TELEMETRY SIMULATOR ==================== -->
+    <section id="tab-simulator" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="border-b border-slate-800 pb-4 mb-6">
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-bolt text-amber-400"></i>
+            <span>Campus IoT Telemetry Ingestion Simulator</span>
+          </h2>
+          <p class="text-xs text-slate-400">Simulate environmental thresholds, trigger automated triage, and verify instantaneous SLA provisioning</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Form -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Sensor Identifier</label>
+                <input type="text" id="sim-sensor-id" value="TH-SERVER-ROOM-A" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Target Facility</label>
+                <select id="sim-facility-id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                  <option value="fac-server-main">Server Room A (SERVER_ROOM)</option>
+                  <option value="fac-lab-101">IoT Embedded Systems Lab (Lab 101)</option>
+                  <option value="fac-seminar-main">Main Seminar Hall</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Telemetry Metric</label>
+                <select id="sim-metric" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                  <option value="TEMPERATURE_CELSIUS">TEMPERATURE_CELSIUS</option>
+                  <option value="VIBRATION_MM_S">VIBRATION_MM_S</option>
+                  <option value="HUMIDITY_PERCENT">HUMIDITY_PERCENT</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Safe Threshold</label>
+                <input type="number" step="0.1" id="sim-threshold" value="28.0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-semibold text-slate-300">Current Sensor Reading</label>
+                <span id="reading-display" class="font-mono text-sm font-bold text-rose-400">34.8 °C</span>
+              </div>
+              <input type="range" min="15" max="50" step="0.1" value="34.8" id="sim-reading-slider" oninput="document.getElementById('sim-reading-val').value = this.value; document.getElementById('reading-display').textContent = this.value + ' °C'" class="w-full accent-indigo-500 cursor-pointer">
+              <input type="number" step="0.1" id="sim-reading-val" value="34.8" oninput="document.getElementById('sim-reading-slider').value = this.value; document.getElementById('reading-display').textContent = this.value + ' °C'" class="mt-2 w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <!-- Preset Buttons -->
+            <div class="pt-2">
+              <p class="text-xs text-slate-400 mb-2 font-medium">Quick Incident Presets:</p>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="setTelemetryPreset('TH-SERVER-ROOM-A', 'TEMPERATURE_CELSIUS', 34.8, 28.0, 'fac-server-main')" class="px-3 py-1.5 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs font-medium hover:bg-rose-900/60 transition-all flex items-center space-x-1.5">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>Emergency Server Overheat (34.8°C / 28.0°C)</span>
+                </button>
+                <button onclick="setTelemetryPreset('VIB-HVAC-CHILLER-01', 'VIBRATION_MM_S', 6.2, 4.0, 'fac-server-main')" class="px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-800 text-amber-300 text-xs font-medium hover:bg-amber-900/60 transition-all flex items-center space-x-1.5">
+                  <i class="fa-solid fa-gears"></i>
+                  <span>Chiller High Vibration (6.2 mm/s)</span>
+                </button>
+                <button onclick="setTelemetryPreset('TH-LAB-101', 'TEMPERATURE_CELSIUS', 22.5, 26.0, 'fac-lab-101')" class="px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs font-medium hover:bg-emerald-900/60 transition-all flex items-center space-x-1.5">
+                  <i class="fa-solid fa-check"></i>
+                  <span>Nominal Ambient (22.5°C)</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button onclick="submitTelemetryAlert()" id="btn-submit-telemetry" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-semibold rounded-lg text-sm shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Dispatch Sensor Ingestion Alert (POST /api/v1/sensors/alerts)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Ingestion Terminal View -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col font-mono text-xs">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-400 font-bold ml-2">Ingestion Console</span>
+              </div>
+              <span id="response-status-badge" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">IDLE</span>
+            </div>
+            <div id="sim-response-output" class="text-slate-300 flex-1 overflow-y-auto space-y-2 leading-relaxed">
+              <p class="text-slate-500">// Ready to ingest telemetry data from edge sensors...</p>
+              <p class="text-slate-500">// Payload schema: { sensorId, metric, reading, threshold, facilityId }</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: MAINTENANCE KANBAN QUEUE ==================== -->
+    <section id="tab-kanban" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/70 border border-slate-800 p-4 rounded-xl">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-list-check text-rose-400"></i>
+            <span>Technician Maintenance Kanban Queue</span>
+          </h2>
+          <p class="text-xs text-slate-400">Automated SLA tracking with explainable machine triage rationale and technician dispatch</p>
+        </div>
+        <div class="flex items-center space-x-3 text-xs">
+          <div class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 flex items-center space-x-2">
+            <i class="fa-solid fa-helmet-safety text-amber-400"></i>
+            <span>On-Duty Tech: <strong>Sarah Jenkins (HVAC)</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kanban 3 Columns -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- OPEN COLUMN -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
+              <h3 class="text-sm font-bold text-white">OPEN ALERTS</h3>
+            </div>
+            <span id="kanban-open-count" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-950 text-rose-300 border border-rose-800">1</span>
+          </div>
+          <div id="kanban-col-open" class="space-y-4 flex-1">
+            <!-- Open Tickets Cards Rendered Here -->
+          </div>
+        </div>
+
+        <!-- IN PROGRESS COLUMN -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+              <h3 class="text-sm font-bold text-white">IN PROGRESS</h3>
+            </div>
+            <span id="kanban-progress-count" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800">0</span>
+          </div>
+          <div id="kanban-col-progress" class="space-y-4 flex-1">
+            <!-- In Progress Tickets Cards Rendered Here -->
+          </div>
+        </div>
+
+        <!-- RESOLVED COLUMN -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <h3 class="text-sm font-bold text-white">RESOLVED</h3>
+            </div>
+            <span id="kanban-resolved-count" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">0</span>
+          </div>
+          <div id="kanban-col-resolved" class="space-y-4 flex-1">
+            <!-- Resolved Tickets Cards Rendered Here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: DEPARTMENT APPROVALS & AUDIT ==================== -->
+    <section id="tab-approvals" class="tab-content hidden space-y-6">
+      <!-- Approver Banner -->
+      <div class="bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-purple-950/80 border border-indigo-800/60 rounded-2xl p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+          <div class="h-12 w-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-xl font-bold">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-lg font-bold text-white">Dr. Karpagam</h2>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-indigo-900/80 text-indigo-200 border border-indigo-700">Approver / Faculty Head</span>
+            </div>
+            <p class="text-xs text-slate-300">Department of IoT & Embedded Systems &bull; High-Security Facility Access Control</p>
+          </div>
+        </div>
+        <div class="text-xs text-slate-400 bg-slate-950/60 px-3.5 py-2 rounded-xl border border-slate-800">
+          <span class="text-slate-300 font-semibold">Active Policy:</span> Restricted facilities require authorized faculty endorsement before access schedule locks.
+        </div>
+      </div>
+
+      <!-- Pending Restricted Bookings Review Queue -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-clock-rotate-left text-amber-400"></i>
+            <span>Pending Restricted Facility Requests</span>
+          </h3>
+          <span class="text-xs text-slate-400">Awaiting Dr. Karpagam Review</span>
+        </div>
+
+        <div id="approvals-container" class="space-y-4">
+          <!-- Pending Booking Card Rendered Here -->
+        </div>
+      </div>
+
+      <!-- Real-Time Audit Trail -->
+      <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+              <span>Immutable Operational Audit Trail</span>
+            </h3>
+            <p class="text-xs text-slate-400">PostgreSQL chronological ledger recording every state mutation, lock acquisition, and triage decision</p>
+          </div>
+          <button onclick="loadAuditLogs()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center space-x-1.5 transition-all">
+            <i class="fa-solid fa-rotate-right text-[10px]"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-800">
+                <th class="pb-2.5 font-semibold">LOG ID</th>
+                <th class="pb-2.5 font-semibold">TIMESTAMP</th>
+                <th class="pb-2.5 font-semibold">ENTITY</th>
+                <th class="pb-2.5 font-semibold">ACTION</th>
+                <th class="pb-2.5 font-semibold">PERFORMED BY</th>
+                <th class="pb-2.5 font-semibold">AUDIT PAYLOAD DETAILS</th>
+              </tr>
+            </thead>
+            <tbody id="audit-trail-rows" class="divide-y divide-slate-800/60 text-slate-300">
+              <!-- Logs populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: NEW RESERVATION -->
+  <div id="booking-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-calendar-plus text-indigo-400"></i>
+          <span>Reserve Campus Facility</span>
+        </h3>
+        <button onclick="closeBookingModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="booking-form" onsubmit="submitNewBooking(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Select Facility</label>
+          <select id="modal-facility-id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            <option value="fac-lab-101">IoT Embedded Systems Lab (Lab 101) [Restricted]</option>
+            <option value="fac-seminar-main">Main Seminar Hall [Public]</option>
+            <option value="fac-server-main">Server Room A [Restricted / Infrastructure]</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Requester Identity</label>
+          <select id="modal-user-id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+            <option value="user-nirmal">Nirmal S (Student - 192511249)</option>
+            <option value="user-karpagam">Dr. Karpagam (Faculty Approver)</option>
+            <option value="user-admin">Campus Administrator</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Event / Research Title</label>
+          <input type="text" id="modal-title" required placeholder="e.g. Edge AI Hardware Accelerator Benchmarking" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Start Time</label>
+            <input type="datetime-local" id="modal-start-time" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">End Time</label>
+            <input type="datetime-local" id="modal-end-time" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Research Justification / Notes</label>
+          <textarea id="modal-notes" rows="2" placeholder="Explain technical hardware requirements..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div id="modal-error-msg" class="text-xs text-rose-400 font-medium hidden"></div>
+
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" onclick="closeBookingModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm hover:bg-slate-700 transition-all">Cancel</button>
+          <button type="submit" id="btn-submit-booking" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold shadow-lg shadow-indigo-600/30 transition-all flex items-center space-x-2">
+            <i class="fa-solid fa-lock text-xs"></i>
+            <span>Commit Reservation</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-950/60 py-4 text-center text-xs text-slate-500">
+    <p>Smart Campus Facility Booking and Maintenance Platform &bull; Node.js, Express, PostgreSQL 15, Nginx Round-Robin Proxy</p>
+    <p class="mt-1 font-mono text-[11px] text-slate-600">Simulated Cluster Environment &bull; Developed by Nirmal S (192511249@simats.edu.in)</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

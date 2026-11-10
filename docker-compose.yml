@@ -1,0 +1,94 @@
+services:
+  smart_campus_db:
+    image: postgres:15-alpine
+    container_name: smart_campus_db
+    environment:
+      POSTGRES_DB: campus_ops
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d campus_ops"]
+      interval: 4s
+      timeout: 4s
+      retries: 5
+      start_period: 4s
+    restart: unless-stopped
+
+  app_a:
+    build: .
+    container_name: smart_campus_app_a
+    environment:
+      PORT: 5000
+      INSTANCE_NAME: app_instance_a
+      DB_HOST: smart_campus_db
+      DB_PORT: 5432
+      DB_NAME: campus_ops
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      NODE_ENV: production
+    ports:
+      - "5001:5000"
+    depends_on:
+      smart_campus_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/api/v1/health || exit 1"]
+      interval: 4s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  app_b:
+    build: .
+    container_name: smart_campus_app_b
+    environment:
+      PORT: 5000
+      INSTANCE_NAME: app_instance_b
+      DB_HOST: smart_campus_db
+      DB_PORT: 5432
+      DB_NAME: campus_ops
+      DB_USER: postgres
+      DB_PASSWORD: postgrespassword
+      NODE_ENV: production
+    ports:
+      - "5002:5000"
+    depends_on:
+      smart_campus_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/api/v1/health || exit 1"]
+      interval: 4s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:alpine
+    container_name: smart_campus_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      app_a:
+        condition: service_healthy
+      app_b:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost/api/v1/health || exit 1"]
+      interval: 4s
+      timeout: 3s
+      retries: 5
+      start_period: 4s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    name: smart_campus_pgdata
